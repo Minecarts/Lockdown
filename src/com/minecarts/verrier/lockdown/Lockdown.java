@@ -14,6 +14,8 @@ import org.bukkit.event.Event.Type;
 
 import org.bukkit.util.config.Configuration;
 
+import org.bukkit.entity.Player;
+
 import com.minecarts.verrier.lockdown.listener.*;
 
 public class Lockdown extends JavaPlugin {
@@ -71,9 +73,22 @@ public class Lockdown extends JavaPlugin {
 			if(args.length > 0){
 				if(args[0].equals("lock")){
 					this.worldLocked = true;
+					if(sender instanceof Player){
+						((Player) sender).sendMessage("World LOCKED!");
+						log.info("WORLD LOCKED BY " + ((Player) sender).getName());
+					} else {
+						log.info("World LOCKED!");
+					}
+					
 					return true;
 				} else if (args[0].equals("unlock")){
 					this.worldLocked = false;
+					if(sender instanceof Player){
+						((Player) sender).sendMessage("World UNLOCKED!");
+						log.info("WORLD UNLOCKED BY " + ((Player) sender).getName());
+					} else {
+						log.info("World UNLOCKED!");
+					}
 					return true;
 				}
 			}
