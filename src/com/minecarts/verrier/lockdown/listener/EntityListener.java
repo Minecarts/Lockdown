@@ -1,6 +1,7 @@
 package com.minecarts.verrier.lockdown.listener;
 
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Entity;
 import com.minecarts.verrier.lockdown.*;
 
 import org.bukkit.event.painting.PaintingCreateEvent;
@@ -8,6 +9,7 @@ import org.bukkit.event.painting.PaintingRemoveEvent;
 import org.bukkit.event.painting.PaintingRemoveEvent.RemoveCause;
 import org.bukkit.event.painting.PaintingRemoveByEntityEvent;
 import org.bukkit.event.entity.*;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 public class EntityListener extends org.bukkit.event.entity.EntityListener {
 	private Lockdown plugin;
@@ -15,6 +17,34 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
 	{
 		plugin = instance;
 	}
+//PVP
+	public void onEntityDamageByEntity(EntityDamageByEntityEvent event){
+		plugin.log("EVENT: " + event.getEventName());
+		if(event.isCancelled() || !plugin.locked()){
+			return;
+		}
+		
+		Entity attacker = event.getDamager();
+	    Entity defender = event.getEntity();
+		if(attacker instanceof Player && defender instanceof Player){
+			event.setCancelled(true);
+			plugin.msgLockdown((Player) attacker);
+		}
+	}
+	public void onEntityDamageByProjectile(EntityDamageByProjectileEvent event){
+		plugin.log("EVENT: " + event.getEventName());
+		if(event.isCancelled() || !plugin.locked()){
+			return;
+		}
+		
+		Entity defender = event.getEntity();
+	    Entity attacker = event.getDamager();
+		if(attacker instanceof Player && defender instanceof Player){
+			event.setCancelled(true);
+			plugin.msgLockdown((Player) attacker);
+		}
+	}
+	
 //Explosions
 	public void onEntityExplode(EntityExplodeEvent event){
 		plugin.log("EVENT: " + event.getEventName());

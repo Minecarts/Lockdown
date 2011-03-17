@@ -36,6 +36,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
 				|| itemType == Material.REDSTONE
 				|| itemType == Material.WOOD_DOOR
 				|| itemType == Material.IRON_DOOR
+				|| itemType == Material.BED
 				|| itemType == Material.SADDLE //Not implemented in craftbukkit :(
 			){
 				event.setCancelled(true);
