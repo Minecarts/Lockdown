@@ -35,14 +35,19 @@ public class Lockdown extends JavaPlugin {
 		private EntityListener entityListener;
 		private BlockListener blockListener;
 		private PlayerListener playerListener;
+		
+		private PluginManager pluginManager;
+		private List<String> requiredPlugins;
 	
 	public void onEnable(){
-		PluginManager pm = getServer().getPluginManager();
+		this.pluginManager = getServer().getPluginManager();		
 		this.config = getConfiguration();
 		
+		this.requiredPlugins = this.config.getStringList("required_plugins",new ArrayList<String>());
 		this.worldLocked = this.config.getBoolean("locked", true);
 		this.debug = this.config.getBoolean("debug", false);
 			
+		
 		//Create our listeners
 			entityListener = new EntityListener(this);
 			blockListener = new BlockListener(this);
@@ -52,28 +57,28 @@ public class Lockdown extends JavaPlugin {
 	    //Register our events
 			//Player
 				//TODO
-				pm.registerEvent(Type.PLAYER_ITEM, this.playerListener, Event.Priority.Normal, this);
-				pm.registerEvent(Type.ENTITY_DAMAGED, this.entityListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.PLAYER_ITEM, this.playerListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.ENTITY_DAMAGED, this.entityListener, Event.Priority.Normal, this);
 			//Painting
-				pm.registerEvent(Type.PAINTING_CREATE, this.entityListener, Event.Priority.Normal, this);
-				pm.registerEvent(Type.PAINTING_REMOVE, this.entityListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.PAINTING_CREATE, this.entityListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.PAINTING_REMOVE, this.entityListener, Event.Priority.Normal, this);
 			//Explosions
-				pm.registerEvent(Type.EXPLOSION_PRIMED, this.entityListener, Event.Priority.Normal, this);
-				pm.registerEvent(Type.ENTITY_EXPLODE, this.entityListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.EXPLOSION_PRIMED, this.entityListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.ENTITY_EXPLODE, this.entityListener, Event.Priority.Normal, this);
 			//Blocks
-				pm.registerEvent(Type.BLOCK_BREAK, this.blockListener, Event.Priority.Normal, this);
-				pm.registerEvent(Type.BLOCK_PLACED, this.blockListener, Event.Priority.Normal, this);
-				pm.registerEvent(Type.BLOCK_INTERACT, this.blockListener, Event.Priority.Normal, this);
-				pm.registerEvent(Type.BLOCK_IGNITE, this.blockListener, Event.Priority.Normal, this);
-				pm.registerEvent(Type.BLOCK_BURN, this.blockListener, Event.Priority.Normal, this);
-				pm.registerEvent(Type.BLOCK_FLOW, this.blockListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.BLOCK_BREAK, this.blockListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.BLOCK_PLACED, this.blockListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.BLOCK_INTERACT, this.blockListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.BLOCK_IGNITE, this.blockListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.BLOCK_BURN, this.blockListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.BLOCK_FLOW, this.blockListener, Event.Priority.Normal, this);
 		
 		//Loaded OK, display some awesome messages
 			PluginDescriptionFile pdf = getDescription();
 		    this.log.info("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
 	    
 	    //Start the timer to monitor our required plugins
-		    Runnable checkLoadedPlugins = new checkLoadedPlugins(this.config.getStringList("required_plugins",new ArrayList<String>()),pm,this);
+		    Runnable checkLoadedPlugins = new checkLoadedPlugins();
 		    getServer().getScheduler().scheduleSyncRepeatingTask(this, checkLoadedPlugins, 20, 300); //Check every 15 seconds (300 ticks)
 	}
 	
@@ -110,38 +115,33 @@ public class Lockdown extends JavaPlugin {
 		return false;
 	}
 	
-	//Repeating plugin loaded checker
-		public class checkLoadedPlugins implements Runnable {
-			private List<String> requiredPlugins;
-			private PluginManager pm;
-			private Lockdown plugin;
-			public checkLoadedPlugins(List<String> requiredPlugins, PluginManager pm, Lockdown plugin){
-				this.requiredPlugins = requiredPlugins;
-				this.pm = pm;
-				this.plugin = plugin;
-			}
-	        public void run(){
-	        	if(!plugin.locked()){
-		        	for(String p : requiredPlugins){
-		        		if(!pm.isPluginEnabled(p)){
-		        			//OH SHIT.
-		        			log.warning("Lockdown> WORLD HAS BEEN LOCKED DUE TO A MISSING PLUGIN!");
-		        			plugin.lockWorld();
-		        		}
-
-		        	}
-		        }
-	        }
-	    }
+	//Repeating plugin loaded checker 
+    public class checkLoadedPlugins implements Runnable { 
+    	public void run() { 
+    		for(String p : Lockdown.this.requiredPlugins) { 
+    			if(!Lockdown.this.pluginManager.isPluginEnabled(p)) { 
+    				if(!Lockdown.this.worldLocked) { 
+    					Lockdown.this.lockWorld("Required plugin " + p + " is not loaded or disabled."); 
+    				} 
+    				return; 
+    			} 
+    		} 
+    		if(Lockdown.this.worldLocked) { 
+    			Lockdown.this.unlockWorld("All required plugins enabled."); 
+    		} 
+    	} 
+    }
 	
 	//External API
 		public boolean locked(){
 			return this.worldLocked;
 		}
-		public void lockWorld(){
+		public void lockWorld(String msg){
+			log(msg,false);
 			this.worldLocked = true;
 		}
-		public void unlockWorld(){
+		public void unlockWorld(String msg){
+			log(msg,false);
 			this.worldLocked = false;
 		}
 	
