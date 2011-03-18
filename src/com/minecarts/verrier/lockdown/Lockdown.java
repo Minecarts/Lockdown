@@ -24,29 +24,26 @@ import java.util.List;
 import com.minecarts.verrier.lockdown.listener.*;
 
 public class Lockdown extends JavaPlugin {
-	public final Logger log = Logger.getLogger("Minecraft");
+	public final Logger log = Logger.getLogger("Minecraft.Lockdown");
+
+	private PluginManager pluginManager;
+
 	public Configuration config;
+	private List<String> requiredPlugins;
+	private boolean debug = false;
 	
-	//Temporary config values (to be put in config later)
-		private boolean worldLocked = true;
-		private boolean debug = false;
+	private boolean locked = false;
 	
-	//Listeners
-		private EntityListener entityListener;
-		private BlockListener blockListener;
-		private PlayerListener playerListener;
-		
-		private PluginManager pluginManager;
-		private List<String> requiredPlugins;
+	private EntityListener entityListener;
+	private BlockListener blockListener;
+	private PlayerListener playerListener;
 	
 	public void onEnable(){
-		this.pluginManager = getServer().getPluginManager();		
-		this.config = getConfiguration();
+		pluginManager = getServer().getPluginManager();		
+		config = getConfiguration();
 		
-		this.requiredPlugins = this.config.getStringList("required_plugins",new ArrayList<String>());
-		this.worldLocked = this.config.getBoolean("locked", true);
-		this.debug = this.config.getBoolean("debug", false);
-			
+		requiredPlugins = config.getStringList("required_plugins", new ArrayList<String>());
+		debug = config.getBoolean("debug", false);
 		
 		//Create our listeners
 			entityListener = new EntityListener(this);
@@ -57,29 +54,38 @@ public class Lockdown extends JavaPlugin {
 	    //Register our events
 			//Player
 				//TODO
-				pluginManager.registerEvent(Type.PLAYER_ITEM, this.playerListener, Event.Priority.Normal, this);
-				pluginManager.registerEvent(Type.ENTITY_DAMAGED, this.entityListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.PLAYER_ITEM, playerListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.ENTITY_DAMAGED, entityListener, Event.Priority.Normal, this);
 			//Painting
-				pluginManager.registerEvent(Type.PAINTING_CREATE, this.entityListener, Event.Priority.Normal, this);
-				pluginManager.registerEvent(Type.PAINTING_REMOVE, this.entityListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.PAINTING_CREATE, entityListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.PAINTING_REMOVE, entityListener, Event.Priority.Normal, this);
 			//Explosions
-				pluginManager.registerEvent(Type.EXPLOSION_PRIMED, this.entityListener, Event.Priority.Normal, this);
-				pluginManager.registerEvent(Type.ENTITY_EXPLODE, this.entityListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.EXPLOSION_PRIMED, entityListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
 			//Blocks
-				pluginManager.registerEvent(Type.BLOCK_BREAK, this.blockListener, Event.Priority.Normal, this);
-				pluginManager.registerEvent(Type.BLOCK_PLACED, this.blockListener, Event.Priority.Normal, this);
-				pluginManager.registerEvent(Type.BLOCK_INTERACT, this.blockListener, Event.Priority.Normal, this);
-				pluginManager.registerEvent(Type.BLOCK_IGNITE, this.blockListener, Event.Priority.Normal, this);
-				pluginManager.registerEvent(Type.BLOCK_BURN, this.blockListener, Event.Priority.Normal, this);
-				pluginManager.registerEvent(Type.BLOCK_FLOW, this.blockListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.BLOCK_PLACED, blockListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.BLOCK_INTERACT, blockListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.BLOCK_IGNITE, blockListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.BLOCK_BURN, blockListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.BLOCK_FLOW, blockListener, Event.Priority.Normal, this);
 		
 		//Loaded OK, display some awesome messages
 			PluginDescriptionFile pdf = getDescription();
-		    this.log.info("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
+		    log.info("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
 	    
+		    
+		// Start the world in lockdown mode?
+		if(config.getBoolean("locked", false)) {
+			lock("Plugin configured to start in lockdown mode.");
+		}
+			
+		
 	    //Start the timer to monitor our required plugins
 		    Runnable checkLoadedPlugins = new checkLoadedPlugins();
 		    getServer().getScheduler().scheduleSyncRepeatingTask(this, checkLoadedPlugins, 20, 300); //Check every 15 seconds (300 ticks)
+		    
+		    
 	}
 	
 	public void onDisable(){
@@ -90,22 +96,19 @@ public class Lockdown extends JavaPlugin {
 		if(cmdLabel.equals("lockdown")){
 			if(args.length > 0){
 				if(args[0].equals("lock")){
-					this.worldLocked = true;
 					if(sender instanceof Player){
 						((Player) sender).sendMessage("World LOCKED!");
-						log.info("WORLD LOCKED BY " + ((Player) sender).getName());
+						lock("Command issued by " + ((Player) sender).getName());
 					} else {
-						log.info("World LOCKED!");
+						lock("Console command");
 					}
-					
 					return true;
 				} else if (args[0].equals("unlock")){
-					this.worldLocked = false;
 					if(sender instanceof Player){
 						((Player) sender).sendMessage("World UNLOCKED!");
-						log.info("WORLD UNLOCKED BY " + ((Player) sender).getName());
+						unlock("Command issued by " + ((Player) sender).getName());
 					} else {
-						log.info("World UNLOCKED!");
+						unlock("Console command");
 					}
 					return true;
 				}
@@ -120,29 +123,29 @@ public class Lockdown extends JavaPlugin {
     	public void run() { 
     		for(String p : Lockdown.this.requiredPlugins) { 
     			if(!Lockdown.this.pluginManager.isPluginEnabled(p)) { 
-    				if(!Lockdown.this.worldLocked) { 
-    					Lockdown.this.lockWorld("Required plugin " + p + " is not loaded or disabled."); 
+    				if(!Lockdown.this.locked) { 
+    					Lockdown.this.lock("Required plugin " + p + " is not loaded or disabled."); 
     				} 
     				return; 
     			} 
     		} 
-    		if(Lockdown.this.worldLocked) { 
-    			Lockdown.this.unlockWorld("All required plugins enabled."); 
+    		if(Lockdown.this.locked) { 
+    			Lockdown.this.unlock("All required plugins enabled."); 
     		} 
     	} 
     }
 	
 	//External API
-		public boolean locked(){
-			return this.worldLocked;
+		public boolean isLocked(){
+			return this.locked;
 		}
-		public void lockWorld(String msg){
-			log(msg,false);
-			this.worldLocked = true;
+		public void lock(String msg){
+			this.locked = true;
+			log("LOCKDOWN ENFORCED: " + msg, false);
 		}
-		public void unlockWorld(String msg){
-			log(msg,false);
-			this.worldLocked = false;
+		public void unlock(String msg){
+			this.locked = false;
+			log("Lockdown lifted: " + msg, false);
 		}
 	
 	//Internal logging and msging
@@ -154,7 +157,7 @@ public class Lockdown extends JavaPlugin {
 			log.info("Lockdown> " + msg);
 		}
 		
-		public void msgLockdown(org.bukkit.entity.Player player){
-			player.sendMessage(ChatColor.RED + "World is in temporary lockdown. Most actions cannot be performed at this time.");
+		public void informPlayer(org.bukkit.entity.Player player){
+			player.sendMessage(ChatColor.RED + "The world is temporarily locked down until all plugins are properly loaded.");
 		}
 }

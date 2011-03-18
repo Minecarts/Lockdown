@@ -20,7 +20,7 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
 //PVP
 	public void onEntityDamageByEntity(EntityDamageByEntityEvent event){
 		plugin.log("EVENT: " + event.getEventName());
-		if(event.isCancelled() || !plugin.locked()){
+		if(event.isCancelled() || !plugin.isLocked()){
 			return;
 		}
 		
@@ -28,12 +28,12 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
 	    Entity defender = event.getEntity();
 		if(attacker instanceof Player && defender instanceof Player){
 			event.setCancelled(true);
-			plugin.msgLockdown((Player) attacker);
+			plugin.informPlayer((Player) attacker);
 		}
 	}
 	public void onEntityDamageByProjectile(EntityDamageByProjectileEvent event){
 		plugin.log("EVENT: " + event.getEventName());
-		if(event.isCancelled() || !plugin.locked()){
+		if(event.isCancelled() || !plugin.isLocked()){
 			return;
 		}
 		
@@ -41,14 +41,14 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
 	    Entity attacker = event.getDamager();
 		if(attacker instanceof Player && defender instanceof Player){
 			event.setCancelled(true);
-			plugin.msgLockdown((Player) attacker);
+			plugin.informPlayer((Player) attacker);
 		}
 	}
 	
 //Explosions
 	public void onEntityExplode(EntityExplodeEvent event){
 		plugin.log("EVENT: " + event.getEventName());
-		if(event.isCancelled() || !plugin.locked()){
+		if(event.isCancelled() || !plugin.isLocked()){
 			return;
 		}
 		event.setCancelled(true);
@@ -68,15 +68,15 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
 //Painting events
 	public void onPaintingCreate(PaintingCreateEvent event){
 		plugin.log("EVENT: " + event.getEventName());
-		if(event.isCancelled() || !plugin.locked()){
+		if(event.isCancelled() || !plugin.isLocked()){
 			return;
 		}
 		event.setCancelled(true);
-		plugin.msgLockdown(event.getPlayer());
+		plugin.informPlayer(event.getPlayer());
 	}
 	public void onPaintingRemove(PaintingRemoveEvent event){
 		plugin.log("EVENT: " + event.getEventName());
-		if(event.isCancelled() || !plugin.locked()){
+		if(event.isCancelled() || !plugin.isLocked()){
 			return;
 		}
 		event.setCancelled(true);
@@ -85,7 +85,7 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
 		if(event.getCause() == RemoveCause.ENTITY){
 			PaintingRemoveByEntityEvent prbe = ((PaintingRemoveByEntityEvent) event);
 			if(prbe.getRemover() instanceof Player){
-				plugin.msgLockdown(((Player) prbe.getRemover()));
+				plugin.informPlayer(((Player) prbe.getRemover()));
 			}
 		}
 	}

@@ -14,34 +14,34 @@ public class BlockListener extends org.bukkit.event.block.BlockListener{
 	
 	public void onBlockBreak(BlockBreakEvent event){
 		plugin.log("EVENT: " + event.getEventName());
-		if(event.isCancelled() || !plugin.locked()){
+		if(event.isCancelled() || !plugin.isLocked()){
 			return;
 		}
 		event.setCancelled(true);
-		plugin.msgLockdown(event.getPlayer());
+		plugin.informPlayer(event.getPlayer());
 	}
 	public void onBlockPlace(BlockPlaceEvent event){
 		plugin.log("EVENT: " + event.getEventName());
-		if(event.isCancelled() || !plugin.locked()){
+		if(event.isCancelled() || !plugin.isLocked()){
 			return;
 		}
 		event.setCancelled(true);
-		plugin.msgLockdown(event.getPlayer());
+		plugin.informPlayer(event.getPlayer());
 	}
 	public void onBlockInteract(BlockInteractEvent event){
 		plugin.log("EVENT: " + event.getEventName());
-		if(event.isCancelled() || !plugin.locked()){
+		if(event.isCancelled() || !plugin.isLocked()){
 			return;
 		}
 		event.setCancelled(true);
 		if(event.getEntity() instanceof Player){ 
-			plugin.msgLockdown((Player) event.getEntity());
+			plugin.informPlayer((Player) event.getEntity());
 		}
 	}
 	
 	public void onBlockIgnite(BlockIgniteEvent event){
 		plugin.log("EVENT: " + event.getEventName());
-		if(event.isCancelled() || !plugin.locked()){
+		if(event.isCancelled() || !plugin.isLocked()){
 			return;
 		}
 		event.setCancelled(true);
@@ -49,7 +49,7 @@ public class BlockListener extends org.bukkit.event.block.BlockListener{
 	
 	public void onBlockBurn(BlockBurnEvent event){
 		plugin.log("EVENT: " + event.getEventName());
-		if(event.isCancelled() || !plugin.locked()){
+		if(event.isCancelled() || !plugin.isLocked()){
 			return;
 		}
 		event.setCancelled(true);
@@ -57,7 +57,7 @@ public class BlockListener extends org.bukkit.event.block.BlockListener{
 	
 	public void onBlockFlow(BlockFromToEvent event){
 		plugin.log("EVENT: " + event.getEventName());
-		if(event.isCancelled() || !plugin.locked()){
+		if(event.isCancelled() || !plugin.isLocked()){
 			return;
 		}
 		event.setCancelled(true);

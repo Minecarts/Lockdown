@@ -25,7 +25,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
 	
 	public void onPlayerItem(PlayerItemEvent event){
 		plugin.log("EVENT: " + event.getEventName());
-		if(event.isCancelled() || !plugin.locked()){
+		if(event.isCancelled() || !plugin.isLocked()){
 			return;
 		}
 		
@@ -35,7 +35,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
 		
 		if(Arrays.asList(materialArray).contains(itemType)){
 			event.setCancelled(true);
-			plugin.msgLockdown(event.getPlayer());
+			plugin.informPlayer(event.getPlayer());
 		}
 	}
 	
