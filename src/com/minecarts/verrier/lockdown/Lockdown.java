@@ -121,13 +121,16 @@ public class Lockdown extends JavaPlugin {
 				this.plugin = plugin;
 			}
 	        public void run(){
-	        	for(String p : requiredPlugins){
-	        		if(!pm.isPluginEnabled(p)){
-	        			//OH SHIT.
-	        			log.warning("Lockdown> WORLD HAS BEEN LOCKED DUE TO A MISSING PLUGIN!");
-	        			plugin.lockWorld();
-	        		}
-	        	}
+	        	if(!plugin.locked()){
+		        	for(String p : requiredPlugins){
+		        		if(!pm.isPluginEnabled(p)){
+		        			//OH SHIT.
+		        			log.warning("Lockdown> WORLD HAS BEEN LOCKED DUE TO A MISSING PLUGIN!");
+		        			plugin.lockWorld();
+		        		}
+
+		        	}
+		        }
 	        }
 	    }
 	
@@ -152,6 +155,6 @@ public class Lockdown extends JavaPlugin {
 		}
 		
 		public void msgLockdown(org.bukkit.entity.Player player){
-			player.sendMessage(ChatColor.RED + "World in in temporary lockdown. Most actions cannot be performed at this time.");
+			player.sendMessage(ChatColor.RED + "World is in temporary lockdown. Most actions cannot be performed at this time.");
 		}
 }
