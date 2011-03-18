@@ -88,7 +88,6 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
 				plugin.msgLockdown(((Player) prbe.getRemover()));
 			}
 		}
-		//No way to determine player from remove event?
 	}
 	
 }
