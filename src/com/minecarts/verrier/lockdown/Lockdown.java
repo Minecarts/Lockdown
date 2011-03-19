@@ -39,11 +39,16 @@ public class Lockdown extends JavaPlugin {
 	private PlayerListener playerListener;
 	
 	public void onEnable(){
-		pluginManager = getServer().getPluginManager();		
-		config = getConfiguration();
-		
-		requiredPlugins = config.getStringList("required_plugins", new ArrayList<String>());
-		debug = config.getBoolean("debug", false);
+		PluginDescriptionFile pdf = getDescription();
+	    log.info("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
+	    
+		pluginManager = getServer().getPluginManager();
+
+		loadConfig();
+		// Start the world in lockdown mode?
+		if(config.getBoolean("locked", false)) {
+			lock("Starting in lockdown mode.");
+		}
 		
 		//Create our listeners
 			entityListener = new EntityListener(this);
@@ -70,17 +75,6 @@ public class Lockdown extends JavaPlugin {
 				pluginManager.registerEvent(Type.BLOCK_BURN, blockListener, Event.Priority.Normal, this);
 				pluginManager.registerEvent(Type.BLOCK_FLOW, blockListener, Event.Priority.Normal, this);
 		
-		//Loaded OK, display some awesome messages
-			PluginDescriptionFile pdf = getDescription();
-		    log.info("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
-	    
-		    
-		// Start the world in lockdown mode?
-		if(config.getBoolean("locked", false)) {
-			lock("Plugin configured to start in lockdown mode.");
-		}
-			
-		
 	    //Start the timer to monitor our required plugins
 		    Runnable checkLoadedPlugins = new checkLoadedPlugins();
 		    getServer().getScheduler().scheduleSyncRepeatingTask(this, checkLoadedPlugins, 20, 300); //Check every 15 seconds (300 ticks)
@@ -95,27 +89,39 @@ public class Lockdown extends JavaPlugin {
 	public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String[] args){
 		if(cmdLabel.equals("lockdown")){
 			if(args.length > 0){
+				Player player = null;
+				String msg = "Console command";
+				
+				if(sender instanceof Player) {
+					player = (Player) sender;
+					msg = "Command issued by " + player.getName();
+				}
+				
 				if(args[0].equals("lock")){
-					if(sender instanceof Player){
-						((Player) sender).sendMessage("World LOCKED!");
-						lock("Command issued by " + ((Player) sender).getName());
-					} else {
-						lock("Console command");
-					}
+					lock(msg);
+					if(player != null) player.sendMessage("LOCKDOWN ENFORCED!");
 					return true;
 				} else if (args[0].equals("unlock")){
-					if(sender instanceof Player){
-						((Player) sender).sendMessage("World UNLOCKED!");
-						unlock("Command issued by " + ((Player) sender).getName());
-					} else {
-						unlock("Console command");
-					}
+					unlock(msg);
+					if(player != null) player.sendMessage("Lockdown lifted!");
+					return true;
+				} else if (args[0].equals("reload")) {
+					loadConfig();
+					if(player != null) player.sendMessage("Lockdown config reloaded.");
 					return true;
 				}
 			}
 			
 		}
 		return false;
+	}
+	
+	private void loadConfig() {
+		if(config == null) config = getConfiguration();
+		else config.load();
+		
+		requiredPlugins = config.getStringList("required_plugins", new ArrayList<String>());
+		debug = config.getBoolean("debug", false);
 	}
 	
 	//Repeating plugin loaded checker 
