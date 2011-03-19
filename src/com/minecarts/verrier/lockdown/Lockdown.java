@@ -91,31 +91,24 @@ public class Lockdown extends JavaPlugin {
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String[] args){
-		if(cmdLabel.equals("lockdown")){
-			Player player = null;
+		if(cmdLabel.equals("lockdown") && sender.isOp()){
 			String msg = "Console command";
-			
-			if(sender instanceof Player) {
-				player = (Player) sender;
-				if(!player.isOp()) return false;
-				msg = "Command issued by " + player.getName();
-			}
+			if(sender instanceof Player) msg = "Command issued by " + ((Player) sender).getName();
 			
 			if(args.length > 0) {
 				if(args[0].equals("lock")){
 					lock(msg);
-					if(player != null) player.sendMessage("LOCKDOWN ENFORCED!");
+					sender.sendMessage("LOCKDOWN ENFORCED!");
 					return true;
 				} else if (args[0].equals("unlock")){
 					unlock(msg);
-					if(player != null) player.sendMessage("Lockdown lifted!");
+					sender.sendMessage("Lockdown lifted!");
 					return true;
 				} else if (args[0].equals("reload")) {
 					loadConfig();
 					
-					msg = "Lockdown config reloaded.";
-					if(player != null) player.sendMessage(msg);
-					else log(msg, false);
+					sender.sendMessage("Lockdown config reloaded.");
+					log("Config reloaded.", false);
 					
 					return true;
 				}
@@ -124,8 +117,7 @@ public class Lockdown extends JavaPlugin {
 				if(!lockedPlugins.isEmpty()) msg += "\n   Locked plugins: " + lockedPlugins.keySet();
 				if(!disabledPlugins.isEmpty()) msg += "\n   Disabled plugins: " + disabledPlugins.keySet();
 				
-				if(player != null) player.sendMessage(msg);
-				else log(msg, false);
+				sender.sendMessage(msg);
 				
 				return true;
 			}
