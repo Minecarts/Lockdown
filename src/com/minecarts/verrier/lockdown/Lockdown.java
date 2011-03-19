@@ -81,7 +81,7 @@ public class Lockdown extends JavaPlugin {
 		
 	    //Start the timer to monitor our required plugins
 		    Runnable checkLoadedPlugins = new checkLoadedPlugins();
-		    getServer().getScheduler().scheduleSyncRepeatingTask(this, checkLoadedPlugins, 20, 300); //Check every 15 seconds (300 ticks)
+		    getServer().getScheduler().scheduleSyncRepeatingTask(this, checkLoadedPlugins, 20, 300); //Check after one second, then every 15 seconds (300 ticks)
 		    
 		    
 	}
@@ -175,6 +175,12 @@ public class Lockdown extends JavaPlugin {
 	//External API
 	public boolean isLocked(){
 		return locked || !disabledPlugins.isEmpty() || !lockedPlugins.isEmpty();
+	}
+	public boolean isLocked(Plugin p) {
+		return isLocked(p.getDescription().getName());
+	}
+	public boolean isLocked(String pluginName) {
+		return lockedPlugins.containsKey(pluginName);
 	}
 
 	public void lock(Plugin p, String reason) {
