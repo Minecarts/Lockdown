@@ -63,21 +63,20 @@ public class Lockdown extends JavaPlugin {
 	    //Register our events
 			//Player
 				//TODO
-				pluginManager.registerEvent(Type.PLAYER_ITEM, playerListener, Event.Priority.Normal, this);
-				pluginManager.registerEvent(Type.ENTITY_DAMAGED, entityListener, Event.Priority.Normal, this);
+			    pluginManager.registerEvent(Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.ENTITY_DAMAGE, entityListener, Event.Priority.Normal, this);
 			//Painting
 				pluginManager.registerEvent(Type.PAINTING_CREATE, entityListener, Event.Priority.Normal, this);
 				pluginManager.registerEvent(Type.PAINTING_REMOVE, entityListener, Event.Priority.Normal, this);
 			//Explosions
-				pluginManager.registerEvent(Type.EXPLOSION_PRIMED, entityListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.EXPLOSION_PRIME, entityListener, Event.Priority.Normal, this);
 				pluginManager.registerEvent(Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
 			//Blocks
 				pluginManager.registerEvent(Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
-				pluginManager.registerEvent(Type.BLOCK_PLACED, blockListener, Event.Priority.Normal, this);
-				pluginManager.registerEvent(Type.BLOCK_INTERACT, blockListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.BLOCK_PLACE, blockListener, Event.Priority.Normal, this);
 				pluginManager.registerEvent(Type.BLOCK_IGNITE, blockListener, Event.Priority.Normal, this);
 				pluginManager.registerEvent(Type.BLOCK_BURN, blockListener, Event.Priority.Normal, this);
-				pluginManager.registerEvent(Type.BLOCK_FLOW, blockListener, Event.Priority.Normal, this);
+				pluginManager.registerEvent(Type.BLOCK_FROMTO, blockListener, Event.Priority.Normal, this);
 		
 	    //Start the timer to monitor our required plugins
 		    Runnable checkLoadedPlugins = new checkLoadedPlugins();
