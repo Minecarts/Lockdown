@@ -51,33 +51,21 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
 		
 		Action eventAction = event.getAction();
 		
-		if((Arrays.asList(allowedItems).contains(event.getItem().getType()))){ //Allowed!
-            //If they right click on air, they can use the item
-            if(eventAction == Action.RIGHT_CLICK_AIR){
-                event.setCancelled(false);
-                event.setUseItemInHand(Result.ALLOW);
-                plugin.log.info("OK!");
-            } else {
-                //But, we must deny usage of food on chests, doors, etc
-                //  otherwise they would act as keys
-                //  ... but for some reason we simply cant set this, because then food
-                //  is unusable, despite setUseItemInHand being ALLOWed
-                event.setUseItemInHand(Result.ALLOW);
-                event.setUseInteractedBlock(Result.ALLOW);
-                event.setCancelled(false);
-                plugin.log.info("Test spot");
-            }
+        //Explicitly deny interacting with all blocks, even if the item they're using is
+		// a white listed item, this includes pressure plates, buttons, switches, doors.. etc.
+        event.setUseInteractedBlock(Result.ALLOW);
+        
+		if((Arrays.asList(allowedItems).contains(event.getItem().getType()))){
+		    //It's a whitelisted item, let them use it
+		    event.setUseItemInHand(Result.ALLOW);
         } else {
-            //They interacted with a nearby block!
-            plugin.log.info("Nearby interact");
             event.setCancelled(true);
             event.setUseItemInHand(Result.DENY);
             event.setUseInteractedBlock(Result.DENY);
         }
 		
 		//If it's a left click, see if we need to send a notice to the player
-        //  only certain blocks send the notice to prevent
-        //  Spammage
+        //  only certain blocks send the notice to prevent messaging when running around punching
         if(eventAction == Action.LEFT_CLICK_BLOCK || eventAction == Action.RIGHT_CLICK_BLOCK){
             org.bukkit.block.Block block = event.getClickedBlock();
             plugin.log.info("Block type: " + block.getType());
@@ -87,6 +75,4 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         }
         
 	}
-	
-	
 }
