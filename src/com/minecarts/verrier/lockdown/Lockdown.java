@@ -62,12 +62,13 @@ public class Lockdown extends JavaPlugin {
 		
 	    //Register our events
 			//Player
-				//TODO
 			    pluginManager.registerEvent(Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
 				pluginManager.registerEvent(Type.ENTITY_DAMAGE, entityListener, Event.Priority.Normal, this);
+				//TODO: Add PLAYER_BUCKET_EMPTY, PLAYER_BUCKET_FULL?
 			//Painting
-				pluginManager.registerEvent(Type.PAINTING_CREATE, entityListener, Event.Priority.Normal, this);
-				pluginManager.registerEvent(Type.PAINTING_REMOVE, entityListener, Event.Priority.Normal, this);
+				//Temporarily removed until we update Craftbukkit
+				//pluginManager.registerEvent(Type.PAINTING_CREATE, entityListener, Event.Priority.Normal, this);
+				//pluginManager.registerEvent(Type.PAINTING_REMOVE, entityListener, Event.Priority.Normal, this);
 			//Explosions
 				pluginManager.registerEvent(Type.EXPLOSION_PRIME, entityListener, Event.Priority.Normal, this);
 				pluginManager.registerEvent(Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);

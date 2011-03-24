@@ -20,6 +20,8 @@ public class BlockListener extends org.bukkit.event.block.BlockListener{
 		event.setCancelled(true);
 		plugin.informPlayer(event.getPlayer());
 	}
+	
+	//Also handled by player Interact
 	public void onBlockPlace(BlockPlaceEvent event){
 		plugin.log("EVENT: " + event.getEventName());
 		if(event.isCancelled() || !plugin.isLocked()){
@@ -28,6 +30,9 @@ public class BlockListener extends org.bukkit.event.block.BlockListener{
 		event.setCancelled(true);
 		plugin.informPlayer(event.getPlayer());
 	}
+	
+	//Also handled by player Interact
+	/*
 	public void onBlockInteract(BlockInteractEvent event){
 		plugin.log("EVENT: " + event.getEventName());
 		if(event.isCancelled() || !plugin.isLocked()){
@@ -38,6 +43,8 @@ public class BlockListener extends org.bukkit.event.block.BlockListener{
 			plugin.informPlayer((Player) event.getEntity());
 		}
 	}
+	*/
+	
 	
 	public void onBlockIgnite(BlockIgniteEvent event){
 		plugin.log("EVENT: " + event.getEventName());

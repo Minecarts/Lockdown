@@ -53,18 +53,6 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
 		}
 		event.setCancelled(true);
 	}
-	/*
-	public void onExplosionPrimed(EntityExplodeEvent event){
-		//Creepers should still explode, but not TNT??
-		if(event.getEntity() instanceof org.bukkit.entity.TNTPrimed){
-			plugin.log("EVENT: " + event.getEventName());
-			if(event.isCancelled() || !plugin.locked()){
-				return;
-			}
-			event.setCancelled(true);
-		}
-	}
-	*/
 //Painting events
 	public void onPaintingCreate(PaintingCreateEvent event){
 		plugin.log("EVENT: " + event.getEventName());
