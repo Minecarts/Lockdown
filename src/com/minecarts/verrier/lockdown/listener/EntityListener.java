@@ -18,33 +18,36 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
         plugin = instance;
     }
 //PVP
-    public void onEntityDamageByEntity(EntityDamageByEntityEvent event){
-        plugin.log("EVENT: " + event.getEventName());
-        if(event.isCancelled() || !plugin.isLocked()){
-            return;
-        }
-        
-        Entity attacker = event.getDamager();
-        Entity defender = event.getEntity();
-        if(attacker instanceof Player && defender instanceof Player){
-            event.setCancelled(true);
-            plugin.informPlayer((Player) attacker);
-        }
-    }
-    public void onEntityDamageByProjectile(EntityDamageByProjectileEvent event){
-        plugin.log("EVENT: " + event.getEventName());
-        if(event.isCancelled() || !plugin.isLocked()){
-            return;
-        }
-        
-        Entity defender = event.getEntity();
-        Entity attacker = event.getDamager();
-        if(attacker instanceof Player && defender instanceof Player){
-            event.setCancelled(true);
-            plugin.informPlayer((Player) attacker);
-        }
-    }
     
+    public void onEntityDamage(EntityDamageEvent event){
+        if(event.isCancelled() || !plugin.isLocked()){
+            return;
+        }
+        
+        //PVP entity protection
+        if(event instanceof EntityDamageByEntityEvent){
+            EntityDamageByEntityEvent e = (EntityDamageByEntityEvent) event;
+            Entity attacker = e.getDamager();
+            Entity defender = e.getEntity();
+            if(attacker instanceof Player && defender instanceof Player){
+                e.setCancelled(true);
+                plugin.informPlayer((Player) attacker);
+            }
+        } else
+        //PVP arrow protection
+        if(event instanceof EntityDamageByProjectileEvent){
+            EntityDamageByProjectileEvent e = (EntityDamageByProjectileEvent) event;
+            Entity attacker = e.getDamager();
+            Entity defender = e.getEntity();
+            if(attacker instanceof Player && defender instanceof Player){
+                e.setCancelled(true);
+                plugin.informPlayer((Player) attacker);
+            }
+        } else {
+        // Something else.. do we need to block anything?
+        }
+        
+    }
 //Explosions
     public void onEntityExplode(EntityExplodeEvent event){
         plugin.log("EVENT: " + event.getEventName());
