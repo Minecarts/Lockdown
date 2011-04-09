@@ -17,11 +17,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
     //Items that can be used despite lockdown
     private final Material[] allowedItems = {Material.BREAD,Material.MILK_BUCKET,Material.APPLE,
             Material.GRILLED_PORK, Material.PORK, Material.GOLDEN_APPLE};
-    
-    //Blocks when clicked that warn the player
-    private final Material[] warnBlocks = {Material.CHEST, Material.WOODEN_DOOR, Material.DISPENSER,
-            Material.FURNACE, Material.LEVER, Material.STONE_BUTTON, Material.BED_BLOCK};
-    
+        
     public PlayerListener(Lockdown instance)
     {
         plugin = instance;
@@ -42,22 +38,16 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
             return;
         }
         
-        //So at this point, lets check to see if the item we're trying
-        //    to use is one of the allowed items.
-        if(event.getItem() == null){
-            event.setCancelled(true);
-            return;
-        }
-        
         Action eventAction = event.getAction();
         
         //Explicitly deny interacting with all blocks, even if the item they're using is
         // a white listed item, this includes pressure plates, buttons, switches, doors.. etc.
-        event.setUseInteractedBlock(Result.ALLOW);
+        //event.setUseInteractedBlock(Result.DENY);
         
-        if((Arrays.asList(allowedItems).contains(event.getItem().getType()))){
+        if(event.getItem() != null && (Arrays.asList(allowedItems).contains(event.getItem().getType()))){
             //It's a whitelisted item, let them use it
             event.setUseItemInHand(Result.ALLOW);
+            System.out.println("Allowed!");
         } else {
             event.setCancelled(true);
             event.setUseItemInHand(Result.DENY);
@@ -67,11 +57,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         //If it's a left click, see if we need to send a notice to the player
         //  only certain blocks send the notice to prevent messaging when running around punching
         if(eventAction == Action.LEFT_CLICK_BLOCK || eventAction == Action.RIGHT_CLICK_BLOCK){
-            org.bukkit.block.Block block = event.getClickedBlock();
-            plugin.log.info("Block type: " + block.getType());
-            if(Arrays.asList(warnBlocks).contains(block.getType())){
-                plugin.informPlayer(event.getPlayer());
-            }
+            plugin.informPlayer(event.getPlayer());
         }
         
     }

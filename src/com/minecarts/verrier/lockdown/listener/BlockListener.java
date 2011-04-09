@@ -66,7 +66,7 @@ public class BlockListener extends org.bukkit.event.block.BlockListener{
     }
     
     @Override
-    public void onBlockFlow(BlockFromToEvent event){
+    public void onBlockFromTo(BlockFromToEvent event){
         plugin.log("EVENT: " + event.getEventName());
         if(event.isCancelled() || !plugin.isLocked()){
             return;
