@@ -12,6 +12,7 @@ public class BlockListener extends org.bukkit.event.block.BlockListener{
         this.plugin = plugin;
     }
     
+    @Override
     public void onBlockBreak(BlockBreakEvent event){
         plugin.log("EVENT: " + event.getEventName());
         if(event.isCancelled() || !plugin.isLocked()){
@@ -22,6 +23,7 @@ public class BlockListener extends org.bukkit.event.block.BlockListener{
     }
     
     //Also handled by player Interact
+    @Override
     public void onBlockPlace(BlockPlaceEvent event){
         plugin.log("EVENT: " + event.getEventName());
         if(event.isCancelled() || !plugin.isLocked()){
@@ -45,7 +47,7 @@ public class BlockListener extends org.bukkit.event.block.BlockListener{
     }
     */
     
-    
+    @Override
     public void onBlockIgnite(BlockIgniteEvent event){
         plugin.log("EVENT: " + event.getEventName());
         if(event.isCancelled() || !plugin.isLocked()){
@@ -54,6 +56,7 @@ public class BlockListener extends org.bukkit.event.block.BlockListener{
         event.setCancelled(true);
     }
     
+    @Override
     public void onBlockBurn(BlockBurnEvent event){
         plugin.log("EVENT: " + event.getEventName());
         if(event.isCancelled() || !plugin.isLocked()){
@@ -62,6 +65,7 @@ public class BlockListener extends org.bukkit.event.block.BlockListener{
         event.setCancelled(true);
     }
     
+    @Override
     public void onBlockFlow(BlockFromToEvent event){
         plugin.log("EVENT: " + event.getEventName());
         if(event.isCancelled() || !plugin.isLocked()){

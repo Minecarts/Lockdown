@@ -4,10 +4,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import com.minecarts.verrier.lockdown.*;
 
+/*
 import org.bukkit.event.painting.PaintingCreateEvent;
 import org.bukkit.event.painting.PaintingRemoveEvent;
 import org.bukkit.event.painting.PaintingRemoveEvent.RemoveCause;
 import org.bukkit.event.painting.PaintingRemoveByEntityEvent;
+*/
 import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
@@ -18,7 +20,7 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
         plugin = instance;
     }
 //PVP
-    
+    @Override
     public void onEntityDamage(EntityDamageEvent event){
         if(event.isCancelled() || !plugin.isLocked()){
             return;
@@ -57,6 +59,7 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
         event.setCancelled(true);
     }
 //Painting events
+/*
     public void onPaintingCreate(PaintingCreateEvent event){
         plugin.log("EVENT: " + event.getEventName());
         if(event.isCancelled() || !plugin.isLocked()){
@@ -80,5 +83,5 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
             }
         }
     }
-    
+*/
 }

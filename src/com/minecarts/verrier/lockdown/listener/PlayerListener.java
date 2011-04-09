@@ -27,7 +27,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         plugin = instance;
     }
     
-    
+    @Override
     public void onPlayerInteract(PlayerInteractEvent event){
         plugin.log("EVENT: " + event.getEventName());
         
