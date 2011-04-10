@@ -34,7 +34,6 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         //    because the event is ALWAYS canceled if we try to interact
         //    with a block outside our range
         if((event.isCancelled() && event.useItemInHand() == Result.DENY) || !plugin.isLocked()){
-            plugin.log.info("Canceled: " + event.isCancelled() + ", Locked:" + plugin.isLocked());
             return;
         }
         
