@@ -209,12 +209,17 @@ public class Lockdown extends JavaPlugin {
         long time = new Date().getTime();
         if(!this.msgThrottle.containsKey(playerName)){
             this.msgThrottle.put(playerName, new Date());
+            notify(player);
         }
         if((time - (this.msgThrottle.get(player.getName()).getTime())) > 1000 * 3){ //every 3 seconds
-            player.sendMessage(ChatColor.GRAY + "The world is in " + ChatColor.YELLOW + "temporary lockdown mode" + ChatColor.GRAY + " while all plugins are");
-            player.sendMessage(ChatColor.GRAY + "   properly loaded. Please try again in a few seconds.");
+            notify(player);
             this.msgThrottle.put(player.getName(), new Date());
         }
             
+    }
+    
+    private void notify(org.bukkit.entity.Player player){
+        player.sendMessage(ChatColor.GRAY + "The world is in " + ChatColor.YELLOW + "temporary lockdown mode" + ChatColor.GRAY + " while all plugins are");
+        player.sendMessage(ChatColor.GRAY + "   properly loaded. Please try again in a few seconds.");
     }
 }
