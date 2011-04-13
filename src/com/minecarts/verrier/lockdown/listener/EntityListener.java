@@ -4,12 +4,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
 import com.minecarts.verrier.lockdown.*;
 
-/*
-import org.bukkit.event.painting.PaintingCreateEvent;
-import org.bukkit.event.painting.PaintingRemoveEvent;
-import org.bukkit.event.painting.PaintingRemoveEvent.RemoveCause;
-import org.bukkit.event.painting.PaintingRemoveByEntityEvent;
-*/
+import org.bukkit.event.painting.PaintingPlaceEvent;
+import org.bukkit.event.painting.PaintingBreakEvent;
+import org.bukkit.event.painting.PaintingBreakEvent.RemoveCause;
+import org.bukkit.event.painting.PaintingBreakByEntityEvent;
+
 import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
@@ -59,8 +58,8 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
         event.setCancelled(true);
     }
 //Painting events
-/*
-    public void onPaintingCreate(PaintingCreateEvent event){
+
+    public void onPaintingPlace(PaintingPlaceEvent event){
         plugin.log("EVENT: " + event.getEventName());
         if(event.isCancelled() || !plugin.isLocked()){
             return;
@@ -68,7 +67,7 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
         event.setCancelled(true);
         plugin.informPlayer(event.getPlayer());
     }
-    public void onPaintingRemove(PaintingRemoveEvent event){
+    public void onPaintingBreak(PaintingBreakEvent event){
         plugin.log("EVENT: " + event.getEventName());
         if(event.isCancelled() || !plugin.isLocked()){
             return;
@@ -77,11 +76,11 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
         
         //If it was removed by a player, let that player know
         if(event.getCause() == RemoveCause.ENTITY){
-            PaintingRemoveByEntityEvent prbe = ((PaintingRemoveByEntityEvent) event);
+            PaintingBreakByEntityEvent prbe = ((PaintingBreakByEntityEvent) event);
             if(prbe.getRemover() instanceof Player){
                 plugin.informPlayer(((Player) prbe.getRemover()));
             }
         }
     }
-*/
+
 }
