@@ -35,16 +35,17 @@ public class Lockdown extends JavaPlugin {
     public Configuration config;
     private List<String> requiredPlugins;
     private boolean debug = false;
-    
+
     private boolean locked = false;
     private HashMap<String, Boolean> disabledPlugins = new HashMap<String, Boolean>();
     private HashMap<String, Boolean> lockedPlugins = new HashMap<String, Boolean>();
-    
+
     private HashMap<String, Date> msgThrottle = new HashMap<String,Date>();
-    
+
     private EntityListener entityListener;
     private BlockListener blockListener;
     private PlayerListener playerListener;
+    private VehicleListener vehicleListener;
     
     public void onEnable(){
         PluginDescriptionFile pdf = getDescription();
@@ -62,6 +63,7 @@ public class Lockdown extends JavaPlugin {
             entityListener = new EntityListener(this);
             blockListener = new BlockListener(this);
             playerListener = new PlayerListener(this);
+            vehicleListener = new VehicleListener(this);
             
         
         //Register our events
@@ -69,6 +71,11 @@ public class Lockdown extends JavaPlugin {
                 pluginManager.registerEvent(Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
                 pluginManager.registerEvent(Type.ENTITY_DAMAGE, entityListener, Event.Priority.Normal, this);
                 //TODO: Add PLAYER_BUCKET_EMPTY, PLAYER_BUCKET_FULL?
+            //Vehicles
+                pluginManager.registerEvent(Type.VEHICLE_COLLISION_ENTITY, vehicleListener, Event.Priority.Normal, this);
+                pluginManager.registerEvent(Type.VEHICLE_DAMAGE, vehicleListener, Event.Priority.Normal, this);
+                pluginManager.registerEvent(Type.VEHICLE_DESTROY, vehicleListener, Event.Priority.Normal, this);
+                pluginManager.registerEvent(Type.VEHICLE_ENTER, vehicleListener, Event.Priority.Normal, this);
             //Painting
                 //Temporarily removed until we update Craftbukkit
                 pluginManager.registerEvent(Type.PAINTING_PLACE, entityListener, Event.Priority.Normal, this);
