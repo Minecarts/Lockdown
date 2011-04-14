@@ -5,7 +5,6 @@ import java.util.Arrays;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.block.Action;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.Material;
 
 import com.minecarts.verrier.lockdown.*;

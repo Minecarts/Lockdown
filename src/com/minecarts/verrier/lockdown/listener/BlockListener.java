@@ -1,10 +1,7 @@
 package com.minecarts.verrier.lockdown.listener;
 
 import com.minecarts.verrier.lockdown.*;
-
-import org.bukkit.Material;
 import org.bukkit.event.block.*;
-import org.bukkit.entity.Player;
 
 public class BlockListener extends org.bukkit.event.block.BlockListener{
     private Lockdown plugin;

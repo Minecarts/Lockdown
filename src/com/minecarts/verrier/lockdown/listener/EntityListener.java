@@ -10,7 +10,6 @@ import org.bukkit.event.painting.PaintingBreakEvent.RemoveCause;
 import org.bukkit.event.painting.PaintingBreakByEntityEvent;
 
 import org.bukkit.event.entity.*;
-import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 public class EntityListener extends org.bukkit.event.entity.EntityListener {
     private Lockdown plugin;

@@ -1,7 +1,6 @@
 package com.minecarts.verrier.lockdown.listener;
 
 import com.minecarts.verrier.lockdown.*;
-
 import org.bukkit.event.vehicle.*;
 
 public class VehicleListener extends org.bukkit.event.vehicle.VehicleListener {
