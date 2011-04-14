@@ -48,53 +48,63 @@ public class Lockdown extends JavaPlugin {
     private VehicleListener vehicleListener;
     
     public void onEnable(){
-        PluginDescriptionFile pdf = getDescription();
-        log.info("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
-        
-        pluginManager = getServer().getPluginManager();
-
-        loadConfig();
-        // Start the world in lockdown mode?
-        if(config.getBoolean("locked", false)) {
-            lock("Starting in lockdown mode.");
+        try{
+            PluginDescriptionFile pdf = getDescription();
+            log.info("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
+            
+            pluginManager = getServer().getPluginManager();
+    
+            loadConfig();
+            // Start the world in lockdown mode?
+            if(config.getBoolean("locked", false)) {
+                lock("Starting in lockdown mode.");
+            }
+            
+            //Create our listeners
+                entityListener = new EntityListener(this);
+                blockListener = new BlockListener(this);
+                playerListener = new PlayerListener(this);
+                vehicleListener = new VehicleListener(this);
+                
+            
+            //Register our events
+                //Player
+                    pluginManager.registerEvent(Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
+                    pluginManager.registerEvent(Type.ENTITY_DAMAGE, entityListener, Event.Priority.Normal, this);
+                    //TODO: Add PLAYER_BUCKET_EMPTY, PLAYER_BUCKET_FULL?
+                //Vehicles
+                    pluginManager.registerEvent(Type.VEHICLE_COLLISION_ENTITY, vehicleListener, Event.Priority.Normal, this);
+                    pluginManager.registerEvent(Type.VEHICLE_DAMAGE, vehicleListener, Event.Priority.Normal, this);
+                    pluginManager.registerEvent(Type.VEHICLE_DESTROY, vehicleListener, Event.Priority.Normal, this);
+                    pluginManager.registerEvent(Type.VEHICLE_ENTER, vehicleListener, Event.Priority.Normal, this);
+                //Painting
+                    //Temporarily removed until we update Craftbukkit
+                    pluginManager.registerEvent(Type.PAINTING_PLACE, entityListener, Event.Priority.Normal, this);
+                    pluginManager.registerEvent(Type.PAINTING_BREAK, entityListener, Event.Priority.Normal, this);
+                //Explosions
+                    pluginManager.registerEvent(Type.EXPLOSION_PRIME, entityListener, Event.Priority.Normal, this);
+                    pluginManager.registerEvent(Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
+                //Blocks
+                    pluginManager.registerEvent(Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
+                    pluginManager.registerEvent(Type.BLOCK_PLACE, blockListener, Event.Priority.Normal, this);
+                    pluginManager.registerEvent(Type.BLOCK_IGNITE, blockListener, Event.Priority.Normal, this);
+                    pluginManager.registerEvent(Type.BLOCK_BURN, blockListener, Event.Priority.Normal, this);
+                    pluginManager.registerEvent(Type.BLOCK_FROMTO, blockListener, Event.Priority.Normal, this);
+            
+            //Start the timer to monitor our required plugins
+                Runnable checkLoadedPlugins = new checkLoadedPlugins();
+                getServer().getScheduler().scheduleSyncRepeatingTask(this, checkLoadedPlugins, 20, 300); //Check after one second, then every 15 seconds (300 ticks)
+        } catch (Error e){
+            getServer().dispatchCommand(new org.bukkit.command.ConsoleCommandSender(getServer()), "stop");
+            log.severe("**** CRITICAL ERROR, LOCKDOWN FAILED TO LOAD CORRECTLY *****");
+            e.printStackTrace();
+        } catch (Exception e){
+            getServer().dispatchCommand(new org.bukkit.command.ConsoleCommandSender(getServer()), "stop");
+            log.severe("**** CRITICAL ERROR, LOCKDOWN FAILED TO LOAD CORRECTLY *****");
+            e.printStackTrace();
         }
         
-        //Create our listeners
-            entityListener = new EntityListener(this);
-            blockListener = new BlockListener(this);
-            playerListener = new PlayerListener(this);
-            vehicleListener = new VehicleListener(this);
-            
-        
-        //Register our events
-            //Player
-                pluginManager.registerEvent(Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
-                pluginManager.registerEvent(Type.ENTITY_DAMAGE, entityListener, Event.Priority.Normal, this);
-                //TODO: Add PLAYER_BUCKET_EMPTY, PLAYER_BUCKET_FULL?
-            //Vehicles
-                pluginManager.registerEvent(Type.VEHICLE_COLLISION_ENTITY, vehicleListener, Event.Priority.Normal, this);
-                pluginManager.registerEvent(Type.VEHICLE_DAMAGE, vehicleListener, Event.Priority.Normal, this);
-                pluginManager.registerEvent(Type.VEHICLE_DESTROY, vehicleListener, Event.Priority.Normal, this);
-                pluginManager.registerEvent(Type.VEHICLE_ENTER, vehicleListener, Event.Priority.Normal, this);
-            //Painting
-                //Temporarily removed until we update Craftbukkit
-                pluginManager.registerEvent(Type.PAINTING_PLACE, entityListener, Event.Priority.Normal, this);
-                pluginManager.registerEvent(Type.PAINTING_BREAK, entityListener, Event.Priority.Normal, this);
-            //Explosions
-                pluginManager.registerEvent(Type.EXPLOSION_PRIME, entityListener, Event.Priority.Normal, this);
-                pluginManager.registerEvent(Type.ENTITY_EXPLODE, entityListener, Event.Priority.Normal, this);
-            //Blocks
-                pluginManager.registerEvent(Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
-                pluginManager.registerEvent(Type.BLOCK_PLACE, blockListener, Event.Priority.Normal, this);
-                pluginManager.registerEvent(Type.BLOCK_IGNITE, blockListener, Event.Priority.Normal, this);
-                pluginManager.registerEvent(Type.BLOCK_BURN, blockListener, Event.Priority.Normal, this);
-                pluginManager.registerEvent(Type.BLOCK_FROMTO, blockListener, Event.Priority.Normal, this);
-        
-        //Start the timer to monitor our required plugins
-            Runnable checkLoadedPlugins = new checkLoadedPlugins();
-            getServer().getScheduler().scheduleSyncRepeatingTask(this, checkLoadedPlugins, 20, 300); //Check after one second, then every 15 seconds (300 ticks)
-            
-            
+                
     }
     
     public void onDisable(){
