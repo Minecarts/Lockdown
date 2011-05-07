@@ -45,11 +45,11 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         if(event.getItem() != null && (Arrays.asList(allowedItems).contains(event.getItem().getType()))){
             //It's a whitelisted item, let them use it
             event.setUseItemInHand(Result.ALLOW);
-            System.out.println("Allowed!");
         } else {
             event.setCancelled(true);
             event.setUseItemInHand(Result.DENY);
             event.setUseInteractedBlock(Result.DENY);
+            event.getPlayer().updateInventory();
         }
         
         //If it's a left click, see if we need to send a notice to the player

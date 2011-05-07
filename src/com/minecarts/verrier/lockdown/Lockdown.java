@@ -3,7 +3,6 @@ package com.minecarts.verrier.lockdown;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
@@ -15,9 +14,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.Event.Type;
 
 import org.bukkit.util.config.Configuration;
-
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,12 +30,11 @@ public class Lockdown extends JavaPlugin {
     private PluginManager pluginManager;
 
     public Configuration config;
-    private List<String> requiredPlugins;
     private boolean debug = false;
 
     private boolean locked = false;
-    private HashMap<String, Boolean> disabledPlugins = new HashMap<String, Boolean>();
-    private HashMap<String, Boolean> lockedPlugins = new HashMap<String, Boolean>();
+    private ArrayList<String> lockedPlugins = new ArrayList<String>();
+    private List<String> requiredPlugins;
 
     private HashMap<String, Date> msgThrottle = new HashMap<String,Date>();
 
@@ -50,23 +46,20 @@ public class Lockdown extends JavaPlugin {
     public void onEnable(){
         try{
             PluginDescriptionFile pdf = getDescription();
-            log.info("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
-            
             pluginManager = getServer().getPluginManager();
-    
+
             loadConfig();
-            // Start the world in lockdown mode?
-            if(config.getBoolean("locked", false)) {
-                lock("Starting in lockdown mode.");
-            }
             
+            if(config.getBoolean("start_locked", true)){
+                lock("Starting world locked due to configuration setting");
+            }
+
             //Create our listeners
                 entityListener = new EntityListener(this);
                 blockListener = new BlockListener(this);
                 playerListener = new PlayerListener(this);
                 vehicleListener = new VehicleListener(this);
-                
-            
+
             //Register our events
                 //Player
                     pluginManager.registerEvent(Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
@@ -78,7 +71,6 @@ public class Lockdown extends JavaPlugin {
                     pluginManager.registerEvent(Type.VEHICLE_DESTROY, vehicleListener, Event.Priority.Normal, this);
                     pluginManager.registerEvent(Type.VEHICLE_ENTER, vehicleListener, Event.Priority.Normal, this);
                 //Painting
-                    //Temporarily removed until we update Craftbukkit
                     pluginManager.registerEvent(Type.PAINTING_PLACE, entityListener, Event.Priority.Normal, this);
                     pluginManager.registerEvent(Type.PAINTING_BREAK, entityListener, Event.Priority.Normal, this);
                 //Explosions
@@ -94,6 +86,8 @@ public class Lockdown extends JavaPlugin {
             //Start the timer to monitor our required plugins
                 Runnable checkLoadedPlugins = new checkLoadedPlugins();
                 getServer().getScheduler().scheduleSyncRepeatingTask(this, checkLoadedPlugins, 20, 300); //Check after one second, then every 15 seconds (300 ticks)
+
+                log.info("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
         } catch (Error e){
             getServer().dispatchCommand(new org.bukkit.command.ConsoleCommandSender(getServer()), "stop");
             log.severe("**** CRITICAL ERROR, LOCKDOWN FAILED TO LOAD CORRECTLY *****");
@@ -135,8 +129,7 @@ public class Lockdown extends JavaPlugin {
                 }
             } else {
                 msg = "Lockdown status: " + (isLocked() ? "LOCKED" : "UNLOCKED");
-                if(!lockedPlugins.isEmpty()) msg += "\n   Locked plugins: " + lockedPlugins.keySet();
-                if(!disabledPlugins.isEmpty()) msg += "\n   Disabled plugins: " + disabledPlugins.keySet();
+                if(!lockedPlugins.isEmpty()) msg += "\n   Locked plugins: " + lockedPlugins;
                 
                 sender.sendMessage(msg);
                 
@@ -149,32 +142,34 @@ public class Lockdown extends JavaPlugin {
     private void loadConfig() {
         if(config == null) config = getConfiguration();
         else config.load();
-        
+
         requiredPlugins = config.getStringList("required_plugins", new ArrayList<String>());
+        lockedPlugins = (ArrayList<String>)config.getStringList("required_plugins", new ArrayList<String>());
         debug = config.getBoolean("debug", false);
     }
     
     //Repeating plugin loaded checker 
-    public class checkLoadedPlugins implements Runnable { 
-        public void run() { 
-            if(disabledPlugins.isEmpty()) { 
-                log("All required plugins enabled."); 
-                return;
-            } 
-            
-            // clear disabled plugins list in case the required plugins list changes on a config reload
-            disabledPlugins.clear();
-            
-            for(String p : Lockdown.this.requiredPlugins) { 
-                if(!Lockdown.this.pluginManager.isPluginEnabled(p)) { 
-                    disabledPlugins.put(p, true);
-                    log("Required plugin " + p + " is not loaded or disabled."); 
+    public class checkLoadedPlugins implements Runnable {
+        public void run() {
+            for(String p : requiredPlugins) { 
+                if(!pluginManager.isPluginEnabled(p)) {
+                    if(!lockedPlugins.contains(p)){
+                        lockedPlugins.add(p);
+                    }
+                    log("Required plugin " + p + " is not loaded or disabled.",false);
                 }
-            } 
+            }
+
+            if(lockedPlugins.isEmpty()) {
+                //Nothing to do, all is well... we don't unlock here
+                //  because each plugin needs to verify that it loaded okay!
+                if(isLocked()) unlock(requiredPlugins.size() + " of " + requiredPlugins.size() + " required plugins verified and enabled");
+            } else {
+                lock(lockedPlugins.size() + " of " + requiredPlugins.size() + " plugins not loaded!");
+            }
         } 
     }
-    
-    
+
     // Internal lock/unlock
     private void lock(String reason){
         locked = true;
@@ -187,20 +182,20 @@ public class Lockdown extends JavaPlugin {
     
     //External API
     public boolean isLocked(){
-        return locked || !disabledPlugins.isEmpty() || !lockedPlugins.isEmpty();
+        return locked || !lockedPlugins.isEmpty();
     }
     public boolean isLocked(Plugin p) {
         return isLocked(p.getDescription().getName());
     }
     public boolean isLocked(String pluginName) {
-        return lockedPlugins.containsKey(pluginName);
+        return lockedPlugins.contains(pluginName);
     }
 
     public void lock(Plugin p, String reason) {
         lock(p.getDescription().getName(), reason);
     }
     public void lock(String pluginName, String reason) {
-        lockedPlugins.put(pluginName, true);
+        lockedPlugins.add(pluginName);
         log(pluginName + " PLUGIN LOCK: " + reason, false);
     }
 
