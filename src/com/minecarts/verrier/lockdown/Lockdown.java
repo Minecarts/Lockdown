@@ -8,13 +8,10 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Type;
 
 import org.bukkit.util.config.Configuration;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +19,7 @@ import java.util.HashMap;
 
 import java.util.Date;
 
+import com.minecarts.lockdown.command.MainCommand;
 import com.minecarts.verrier.lockdown.listener.*;
 
 public class Lockdown extends JavaPlugin {
@@ -33,8 +31,8 @@ public class Lockdown extends JavaPlugin {
     private boolean debug = false;
 
     private boolean locked = false;
-    private ArrayList<String> lockedPlugins = new ArrayList<String>();
-    private List<String> requiredPlugins;
+    public List<String> requiredPlugins;
+    public ArrayList<String> lockedPlugins = new ArrayList<String>();
 
     private HashMap<String, Date> msgThrottle = new HashMap<String,Date>();
 
@@ -43,15 +41,18 @@ public class Lockdown extends JavaPlugin {
     private PlayerListener playerListener;
     private VehicleListener vehicleListener;
     
-    public void onEnable(){
-        try{
+    public void onEnable() {
+        try {
             PluginDescriptionFile pdf = getDescription();
             pluginManager = getServer().getPluginManager();
 
-            loadConfig();
-            
-            if(config.getBoolean("start_locked", true)){
-                lock("Starting world locked due to configuration setting");
+            config = getConfiguration();
+            requiredPlugins = config.getStringList("required_plugins", new ArrayList<String>());
+            debug = config.getBoolean("debug", false);
+
+            if(config.getBoolean("start_locked", true)) {
+                //lock("Starting world locked due to configuration setting");
+                lockedPlugins = new ArrayList<String>(requiredPlugins);                
             }
 
             //Create our listeners
@@ -64,7 +65,6 @@ public class Lockdown extends JavaPlugin {
                 //Player
                     pluginManager.registerEvent(Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
                     pluginManager.registerEvent(Type.ENTITY_DAMAGE, entityListener, Event.Priority.Normal, this);
-                    //TODO: Add PLAYER_BUCKET_EMPTY, PLAYER_BUCKET_FULL?
                 //Vehicles
                     pluginManager.registerEvent(Type.VEHICLE_COLLISION_ENTITY, vehicleListener, Event.Priority.Normal, this);
                     pluginManager.registerEvent(Type.VEHICLE_DAMAGE, vehicleListener, Event.Priority.Normal, this);
@@ -82,72 +82,31 @@ public class Lockdown extends JavaPlugin {
                     pluginManager.registerEvent(Type.BLOCK_IGNITE, blockListener, Event.Priority.Normal, this);
                     pluginManager.registerEvent(Type.BLOCK_BURN, blockListener, Event.Priority.Normal, this);
                     pluginManager.registerEvent(Type.BLOCK_FROMTO, blockListener, Event.Priority.Normal, this);
-            
+
+            //Register our command to our commandHandler
+                getCommand("lockdown").setExecutor(new MainCommand(this));
+
             //Start the timer to monitor our required plugins
                 Runnable checkLoadedPlugins = new checkLoadedPlugins();
                 getServer().getScheduler().scheduleSyncRepeatingTask(this, checkLoadedPlugins, 20, 300); //Check after one second, then every 15 seconds (300 ticks)
 
                 log.info("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
-        } catch (Error e){
-            getServer().dispatchCommand(new org.bukkit.command.ConsoleCommandSender(getServer()), "stop");
-            log.severe("**** CRITICAL ERROR, LOCKDOWN FAILED TO LOAD CORRECTLY *****");
-            e.printStackTrace();
-        } catch (Exception e){
-            getServer().dispatchCommand(new org.bukkit.command.ConsoleCommandSender(getServer()), "stop");
-            log.severe("**** CRITICAL ERROR, LOCKDOWN FAILED TO LOAD CORRECTLY *****");
-            e.printStackTrace();
-        }
-        
-                
-    }
-    
-    public void onDisable(){
-        
-    }
-    
-    public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String[] args){
-        if(cmdLabel.equals("lockdown") && sender.isOp()){
-            String msg = "Console command";
-            if(sender instanceof Player) msg = "Command issued by " + ((Player) sender).getName();
-            
-            if(args.length > 0) {
-                if(args[0].equals("lock")){
-                    lock(msg);
-                    sender.sendMessage("LOCKDOWN ENFORCED!");
-                    return true;
-                } else if (args[0].equals("unlock")){
-                    unlock(msg);
-                    sender.sendMessage("Lockdown lifted!");
-                    return true;
-                } else if (args[0].equals("reload")) {
-                    loadConfig();
-                    
-                    sender.sendMessage("Lockdown config reloaded.");
-                    log("Config reloaded.", false);
-                    
-                    return true;
-                }
-            } else {
-                msg = "Lockdown status: " + (isLocked() ? "LOCKED" : "UNLOCKED");
-                if(!lockedPlugins.isEmpty()) msg += "\n   Locked plugins: " + lockedPlugins;
-                
-                sender.sendMessage(msg);
-                
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    private void loadConfig() {
-        if(config == null) config = getConfiguration();
-        else config.load();
 
-        requiredPlugins = config.getStringList("required_plugins", new ArrayList<String>());
-        lockedPlugins = (ArrayList<String>)config.getStringList("required_plugins", new ArrayList<String>());
-        debug = config.getBoolean("debug", false);
+        } catch (Error e) {
+            getServer().dispatchCommand(new org.bukkit.command.ConsoleCommandSender(getServer()), "stop");
+            log.severe("**** CRITICAL ERROR, LOCKDOWN FAILED TO LOAD CORRECTLY *****");
+            e.printStackTrace();
+        } catch (Exception e) {
+            getServer().dispatchCommand(new org.bukkit.command.ConsoleCommandSender(getServer()), "stop");
+            log.severe("**** CRITICAL ERROR, LOCKDOWN FAILED TO LOAD CORRECTLY *****");
+            e.printStackTrace();
+        }
+
+
     }
-    
+
+    public void onDisable(){}
+
     //Repeating plugin loaded checker 
     public class checkLoadedPlugins implements Runnable {
         public void run() {
@@ -156,32 +115,33 @@ public class Lockdown extends JavaPlugin {
                     if(!lockedPlugins.contains(p)){
                         lockedPlugins.add(p);
                     }
-                    log("Required plugin " + p + " is not loaded or disabled.",false);
+                    log("Required plugin " + p + " is not loaded or disabled.", false);
                 }
             }
 
-            if(lockedPlugins.isEmpty()) {
-                //Nothing to do, all is well... we don't unlock here
-                //  because each plugin needs to verify that it loaded okay!
-                if(isLocked()) unlock(requiredPlugins.size() + " of " + requiredPlugins.size() + " required plugins verified and enabled");
-            } else {
-                lock(lockedPlugins.size() + " of " + requiredPlugins.size() + " plugins not loaded!");
+            //Display some helpful logging
+            if(!lockedPlugins.isEmpty()) {
+                log(String.format("%d/%d plugins not enabled or still locked", lockedPlugins.size(), requiredPlugins.size()));
+                int i = 0;
+                for(String p : lockedPlugins){
+                    log(String.format("\t%d. %s", ++i, p));
+                }
             }
-        } 
+        }
     }
 
-    // Internal lock/unlock
-    private void lock(String reason){
+    // Internal lock/unlock -- public for use by MainCommand.java
+    public void lock(String reason) {
         locked = true;
         log("LOCKDOWN ENFORCED: " + reason, false);
     }
-    private void unlock(String reason){
+    public void unlock(String reason) {
         locked = false;
         log("Lockdown lifted: " + reason, false);
     }
     
     //External API
-    public boolean isLocked(){
+    public boolean isLocked() {
         return locked || !lockedPlugins.isEmpty();
     }
     public boolean isLocked(Plugin p) {
@@ -208,29 +168,29 @@ public class Lockdown extends JavaPlugin {
     }
     
     //Internal logging and messaging
-    public void log(String msg){
+    public void log(String msg) {
         log(msg, true);
     }
-    public void log(String msg, boolean debug){
+    public void log(String msg, boolean debug) {
         if(debug && !this.debug) return;
         log.info("Lockdown> " + msg);
     }
     
-    public void informPlayer(org.bukkit.entity.Player player){
+    public void informPlayer(org.bukkit.entity.Player player) {
         String playerName = player.getName();
         long time = new Date().getTime();
-        if(!this.msgThrottle.containsKey(playerName)){
+        if(!this.msgThrottle.containsKey(playerName)) {
             this.msgThrottle.put(playerName, new Date());
             notify(player);
         }
-        if((time - (this.msgThrottle.get(player.getName()).getTime())) > 1000 * 3){ //every 3 seconds
+        if((time - (this.msgThrottle.get(player.getName()).getTime())) > 1000 * 3) { //every 3 seconds
             notify(player);
             this.msgThrottle.put(player.getName(), new Date());
         }
             
     }
     
-    private void notify(org.bukkit.entity.Player player){
+    private void notify(org.bukkit.entity.Player player) {
         player.sendMessage(ChatColor.GRAY + "The world is in " + ChatColor.YELLOW + "temporary lockdown mode" + ChatColor.GRAY + " while all plugins are");
         player.sendMessage(ChatColor.GRAY + "   properly loaded. Please try again in a few seconds.");
     }
