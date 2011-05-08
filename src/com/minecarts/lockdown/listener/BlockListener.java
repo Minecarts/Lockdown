@@ -1,6 +1,7 @@
-package com.minecarts.verrier.lockdown.listener;
+package com.minecarts.lockdown.listener;
 
-import com.minecarts.verrier.lockdown.*;
+import com.minecarts.lockdown.*;
+
 import org.bukkit.event.block.*;
 
 public class BlockListener extends org.bukkit.event.block.BlockListener{

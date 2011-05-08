@@ -1,4 +1,4 @@
-package com.minecarts.verrier.lockdown;
+package com.minecarts.lockdown;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

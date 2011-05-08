@@ -1,4 +1,4 @@
-package com.minecarts.verrier.lockdown.listener;
+package com.minecarts.lockdown.listener;
 
 import java.util.Arrays;
 
@@ -7,7 +7,7 @@ import org.bukkit.event.Event.Result;
 import org.bukkit.event.block.Action;
 import org.bukkit.Material;
 
-import com.minecarts.verrier.lockdown.*;
+import com.minecarts.lockdown.*;
 
 public class PlayerListener extends org.bukkit.event.player.PlayerListener{
 

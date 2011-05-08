@@ -1,11 +1,11 @@
 name: Lockdown
-main: com.minecarts.verrier.lockdown.Lockdown
-version: 1.0.0
+main: com.minecarts.lockdown.Lockdown
+version: 1.0.1
 website: http://minecarts.com
-author: Verrier
+author: Minecarts.com
 description: >
              Lockdown the world to prevent any changes until it's disabled by another plugin
 commands:
   lockdown:
     description: Main command for admins to manage the locked state
-    usage: /<command> [lock | unlock | reload]
+    usage: /<command> [lock | unlock]

@@ -1,8 +1,9 @@
-package com.minecarts.verrier.lockdown.listener;
+package com.minecarts.lockdown.listener;
 
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Entity;
-import com.minecarts.verrier.lockdown.*;
+
+import com.minecarts.lockdown.*;
 
 import org.bukkit.event.painting.PaintingPlaceEvent;
 import org.bukkit.event.painting.PaintingBreakEvent;
