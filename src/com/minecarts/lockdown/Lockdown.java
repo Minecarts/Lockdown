@@ -134,16 +134,20 @@ public class Lockdown extends JavaPlugin {
         lock(p.getDescription().getName(), reason);
     }
     public void lock(String pluginName, String reason) {
-        lockedPlugins.add(pluginName);
-        log(pluginName + " PLUGIN LOCK: " + reason, false);
+        if(!lockedPlugins.contains(pluginName)){
+            lockedPlugins.add(pluginName);
+            log(pluginName + " PLUGIN LOCK: " + reason, false);
+        }
     }
 
     public void unlock(Plugin p, String reason) {
         unlock(p.getDescription().getName(), reason);
     }
     public void unlock(String pluginName, String reason) {
-        lockedPlugins.remove(pluginName);
-        log(pluginName + " plugin lock lifted: " + reason, false);
+        if(!lockedPlugins.contains(pluginName)){
+            lockedPlugins.remove(pluginName);
+            log(pluginName + " plugin lock lifted: " + reason, false);
+        }
     }
 
     //Internal logging and messaging
