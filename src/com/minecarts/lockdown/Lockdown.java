@@ -144,7 +144,7 @@ public class Lockdown extends JavaPlugin {
         unlock(p.getDescription().getName(), reason);
     }
     public void unlock(String pluginName, String reason) {
-        if(!lockedPlugins.contains(pluginName)){
+        if(lockedPlugins.contains(pluginName)){
             lockedPlugins.remove(pluginName);
             log(pluginName + " plugin lock lifted: " + reason, false);
         }
