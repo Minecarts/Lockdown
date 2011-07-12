@@ -55,7 +55,7 @@ public class Lockdown extends JavaPlugin {
 
             HashMap<Listener, Type[]> listeners = new HashMap<Listener, Type[]>();
             listeners.put(new PlayerListener(this), new Type[]{ PLAYER_INTERACT });
-            listeners.put(new BlockListener(this), new Type[]{ BLOCK_BREAK,BLOCK_PLACE,BLOCK_IGNITE,BLOCK_BURN,BLOCK_FROMTO });
+            listeners.put(new BlockListener(this), new Type[]{ BLOCK_BREAK, BLOCK_PLACE, BLOCK_IGNITE, BLOCK_BURN, BLOCK_FROMTO, PISTON_PUSH });
             listeners.put(new EntityListener(this), new Type[]{ ENTITY_DAMAGE, PAINTING_PLACE, PAINTING_BREAK, ENTITY_EXPLODE, EXPLOSION_PRIME });
             listeners.put(new VehicleListener(this), new Type[]{ VEHICLE_COLLISION_ENTITY, VEHICLE_DAMAGE, VEHICLE_DESTROY });
 

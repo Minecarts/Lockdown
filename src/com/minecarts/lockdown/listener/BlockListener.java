@@ -71,4 +71,13 @@ public class BlockListener extends org.bukkit.event.block.BlockListener{
         }
         event.setCancelled(true);
     }
+    
+    @Override
+    public void onPistonPush(PistonPushEvent event){
+        plugin.log("EVENT: " + event.getEventName());
+        if(event.isCancelled() || !plugin.isLocked()){
+            return;
+        }
+        event.setCancelled(true);
+    }
 }
