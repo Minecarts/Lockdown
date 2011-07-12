@@ -1,0 +1,11 @@
+name: Lockdown
+main: com.minecarts.lockdown.Lockdown
+version: ${pom.version}
+website: http://minecarts.com
+author: Minecarts.com
+description: >
+             Lockdown the world to prevent any changes until it's disabled by another plugin
+commands:
+  lockdown:
+    description: Main command for admins to manage the locked state
+    usage: /<command> [lock | unlock]
