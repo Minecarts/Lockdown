@@ -82,11 +82,11 @@ public class Lockdown extends JavaPlugin {
         } catch (Error e) {
             log.severe("**** CRITICAL ERROR, LOCKDOWN FAILED TO LOAD CORRECTLY *****");
             e.printStackTrace();
-            getServer().dispatchCommand(new org.bukkit.command.ConsoleCommandSender(getServer()), "stop");
+            getServer().shutdown();
         } catch (Exception e) {
             log.severe("**** CRITICAL EXCEPTION, LOCKDOWN FAILED TO LOAD CORRECTLY *****");
             e.printStackTrace();
-            getServer().dispatchCommand(new org.bukkit.command.ConsoleCommandSender(getServer()), "stop");
+            getServer().shutdown();
         }
 
 
