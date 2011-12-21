@@ -16,8 +16,6 @@ import org.bukkit.event.Event.Type;
 
 import org.bukkit.entity.Player;
 
-import org.bukkit.util.config.Configuration;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -32,7 +30,6 @@ public class Lockdown extends JavaPlugin {
 
     private PluginManager pluginManager;
 
-    public Configuration config;
     private boolean debug = false;
 
     private List<String> requiredPlugins;
@@ -48,9 +45,8 @@ public class Lockdown extends JavaPlugin {
             PluginDescriptionFile pdf = getDescription();
             pluginManager = getServer().getPluginManager();
 
-            config = getConfiguration();
-            requiredPlugins = config.getStringList("required_plugins", new ArrayList<String>());
-            debug = config.getBoolean("debug", false);
+            requiredPlugins = getConfig().getList("required_plugins", new ArrayList<String>());
+            debug = getConfig().getBoolean("debug", false);
 
 
             HashMap<Listener, Type[]> listeners = new HashMap<Listener, Type[]>();
@@ -70,7 +66,7 @@ public class Lockdown extends JavaPlugin {
 
             log.info("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
 
-            if(config.getBoolean("start_locked", true)) {
+            if(getConfig().getBoolean("start_locked", true)) {
                 lockedPlugins = new ArrayList<String>(requiredPlugins);
                 log("Starting locked, these plugins must unlock themselves manually: " + lockedPlugins, false);
             }
