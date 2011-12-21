@@ -10,6 +10,9 @@ commands:
         description: Main command for admins to manage the locked state
         usage: /<command> [lock | unlock]
 permissions:
+    lockdown.admin:
+        description: "Issue administrative commands to lockdown"
+        default: op
     lockdown.bypass_lock:
         description: "Bypass *certain* lockdown attributes such as login lock"
         default: op
