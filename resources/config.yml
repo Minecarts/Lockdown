@@ -1,0 +1,5 @@
+messages:
+    join_lock: "This server is currently under lockdown, please try again in a few seconds."
+start_locked: true
+debug: false
+required_plugins: []

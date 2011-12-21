@@ -8,6 +8,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.Material;
 
 import com.minecarts.lockdown.*;
+import org.bukkit.event.player.PlayerLoginEvent;
 
 public class PlayerListener extends org.bukkit.event.player.PlayerListener{
 
@@ -20,6 +21,15 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
     public PlayerListener(Lockdown instance)
     {
         plugin = instance;
+    }
+
+    @Override
+    public void onPlayerLogin(PlayerLoginEvent event){
+        plugin.log("EVENT: " + event.getEventName());
+        if(event.getResult() == PlayerLoginEvent.Result.ALLOWED && plugin.isLocked() && !event.getPlayer().hasPermission("bouncer.bypass_lock")){
+            event.setResult(PlayerLoginEvent.Result.KICK_OTHER);
+            event.setKickMessage(plugin.getConfig().getString("messages.join_lock"));
+        }
     }
     
     @Override
