@@ -23,7 +23,7 @@ public class MainCommand extends CommandHandler {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(label.equals("lockdown") && sender.isOp()){
+        if(label.equals("lockdown") && sender.hasPermission("lockdown.admin")){
             String reason = "Console command";
             if(sender instanceof Player) reason = "Command issued by " + ((Player) sender).getName();
 
