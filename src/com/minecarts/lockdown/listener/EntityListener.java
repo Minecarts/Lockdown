@@ -79,4 +79,19 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
         }
     }
 
+    public void onEndermanPickup(EndermanPickupEvent event){
+        plugin.log("EVENT: " + event.getEventName());
+        if(event.isCancelled() || !plugin.isLocked()){
+            return;
+        }
+        event.setCancelled(true);
+    }
+    public void onEndermanPlace(EndermanPlaceEvent event){
+        plugin.log("EVENT: " + event.getEventName());
+        if(event.isCancelled() || !plugin.isLocked()){
+            return;
+        }
+        event.setCancelled(true);
+    }
+
 }
