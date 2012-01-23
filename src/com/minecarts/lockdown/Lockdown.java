@@ -45,8 +45,8 @@ public class Lockdown extends JavaPlugin {
             PluginDescriptionFile pdf = getDescription();
             pluginManager = getServer().getPluginManager();
 
-            requiredPlugins = getConfig().getList("required_plugins", new ArrayList<String>());
-            debug = getConfig().getBoolean("debug", false);
+            requiredPlugins = getConfig().getStringList("required_plugins");
+            debug = getConfig().getBoolean("debug");
 
 
             HashMap<Listener, Type[]> listeners = new HashMap<Listener, Type[]>();
