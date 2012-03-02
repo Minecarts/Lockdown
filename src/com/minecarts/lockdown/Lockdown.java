@@ -1,18 +1,11 @@
 package com.minecarts.lockdown;
 
-import java.util.logging.Logger;
-
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import org.bukkit.event.Event;
-import org.bukkit.event.Listener;
-import static org.bukkit.event.Event.Type.*;
-
-import org.bukkit.event.Event.Type;
 
 import org.bukkit.entity.Player;
 
@@ -26,8 +19,6 @@ import com.minecarts.lockdown.command.MainCommand;
 import com.minecarts.lockdown.listener.*;
 
 public class Lockdown extends JavaPlugin {
-    public final Logger log = Logger.getLogger("Minecraft.Lockdown");
-
     private PluginManager pluginManager;
 
     private boolean debug = false;
@@ -49,22 +40,10 @@ public class Lockdown extends JavaPlugin {
             debug = getConfig().getBoolean("debug");
 
 
-            HashMap<Listener, Type[]> listeners = new HashMap<Listener, Type[]>();
-            listeners.put(new PlayerListener(this), new Type[]{ PLAYER_INTERACT, PLAYER_LOGIN });
-            listeners.put(new BlockListener(this), new Type[]{ BLOCK_BREAK, BLOCK_PLACE, BLOCK_IGNITE, BLOCK_BURN, BLOCK_FROMTO, BLOCK_PISTON_EXTEND, BLOCK_PISTON_RETRACT });
-            listeners.put(new EntityListener(this), new Type[]{ ENTITY_DAMAGE, PAINTING_PLACE, PAINTING_BREAK, ENTITY_EXPLODE, EXPLOSION_PRIME, ENDERMAN_PICKUP, ENDERMAN_PLACE });
-            listeners.put(new VehicleListener(this), new Type[]{ VEHICLE_COLLISION_ENTITY, VEHICLE_DAMAGE, VEHICLE_DESTROY });
-
-            for(java.util.Map.Entry<Listener, Type[]> entry : listeners.entrySet()) {
-                for(Type type : entry.getValue()) {
-                    pluginManager.registerEvent(type, entry.getKey(), Event.Priority.Normal, this);
-                }
-            }
-
             //Register our command to our commandHandler
             getCommand("lockdown").setExecutor(command);
 
-            log.info("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
+            getLogger().info("[" + pdf.getName() + "] version " + pdf.getVersion() + " enabled.");
 
             if(getConfig().getBoolean("start_locked", true)) {
                 lockedPlugins = new ArrayList<String>(requiredPlugins);
@@ -75,12 +54,17 @@ public class Lockdown extends JavaPlugin {
             // Check after one second, then every 10 seconds (200 ticks)
             getServer().getScheduler().scheduleSyncRepeatingTask(this, new checkLoadedPlugins(), 20, 200);
 
+            Bukkit.getPluginManager().registerEvents(new BlockListener(this),this);
+            Bukkit.getPluginManager().registerEvents(new EntityListener(this),this);
+            Bukkit.getPluginManager().registerEvents(new PlayerListener(this),this);
+            Bukkit.getPluginManager().registerEvents(new VehicleListener(this),this);
+
         } catch (Error e) {
-            log.severe("**** CRITICAL ERROR, LOCKDOWN FAILED TO LOAD CORRECTLY *****");
+            getLogger().severe("**** CRITICAL ERROR, LOCKDOWN FAILED TO LOAD CORRECTLY *****");
             e.printStackTrace();
             getServer().shutdown();
         } catch (Exception e) {
-            log.severe("**** CRITICAL EXCEPTION, LOCKDOWN FAILED TO LOAD CORRECTLY *****");
+            getLogger().severe("**** CRITICAL EXCEPTION, LOCKDOWN FAILED TO LOAD CORRECTLY *****");
             e.printStackTrace();
             getServer().shutdown();
         }
@@ -152,7 +136,7 @@ public class Lockdown extends JavaPlugin {
     }
     public void log(String msg, boolean debug) {
         if(debug && !this.debug) return;
-        log.info("Lockdown> " + msg);
+        getLogger().info("Lockdown> " + msg);
     }
 
     public void informPlayer(Player player) {

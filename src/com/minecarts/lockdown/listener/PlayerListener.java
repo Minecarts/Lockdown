@@ -2,6 +2,8 @@ package com.minecarts.lockdown.listener;
 
 import java.util.Arrays;
 
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.block.Action;
@@ -10,7 +12,7 @@ import org.bukkit.Material;
 import com.minecarts.lockdown.*;
 import org.bukkit.event.player.PlayerLoginEvent;
 
-public class PlayerListener extends org.bukkit.event.player.PlayerListener{
+public class PlayerListener implements Listener {
 
     Lockdown plugin;
     
@@ -23,7 +25,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         plugin = instance;
     }
 
-    @Override
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerLogin(PlayerLoginEvent event){
         plugin.log("EVENT: " + event.getEventName());
         if(event.getResult() == PlayerLoginEvent.Result.ALLOWED && plugin.isLocked() && !event.getPlayer().hasPermission("bouncer.bypass_lock")){
@@ -31,8 +33,8 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
             event.setKickMessage(plugin.getConfig().getString("messages.join_lock"));
         }
     }
-    
-    @Override
+
+    @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event){
         plugin.log("EVENT: " + event.getEventName());
         
@@ -42,6 +44,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener{
         //Only cancel the event if we can't use the item in the hand
         //    because the event is ALWAYS canceled if we try to interact
         //    with a block outside our range
+        //TODO: Check the logic here and set ignoreCancelled in the EventHandler annotation if we can
         if((event.isCancelled() && event.useItemInHand() == Result.DENY) || !plugin.isLocked()){
             return;
         }

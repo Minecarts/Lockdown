@@ -6,6 +6,9 @@ import org.bukkit.entity.Entity;
 import com.minecarts.lockdown.*;
 
 import org.bukkit.entity.Wolf;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.painting.PaintingPlaceEvent;
 import org.bukkit.event.painting.PaintingBreakEvent;
 import org.bukkit.event.painting.PaintingBreakEvent.RemoveCause;
@@ -13,16 +16,16 @@ import org.bukkit.event.painting.PaintingBreakByEntityEvent;
 
 import org.bukkit.event.entity.*;
 
-public class EntityListener extends org.bukkit.event.entity.EntityListener {
+public class EntityListener implements Listener {
     private Lockdown plugin;
     public EntityListener(Lockdown instance)
     {
         plugin = instance;
     }
 //PVP
-    @Override
+    @EventHandler(ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent event){
-        if(event.isCancelled() || !plugin.isLocked()){
+        if(!plugin.isLocked()){
             return;
         }
 
@@ -46,26 +49,29 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
     }
 
 //Explosions
+    @EventHandler(ignoreCancelled = true)
     public void onEntityExplode(EntityExplodeEvent event){
         plugin.log("EVENT: " + event.getEventName());
-        if(event.isCancelled() || !plugin.isLocked()){
+        if(!plugin.isLocked()){
             return;
         }
         event.setCancelled(true);
     }
 
 //Painting events
+    @EventHandler(ignoreCancelled = true)
     public void onPaintingPlace(PaintingPlaceEvent event){
         plugin.log("EVENT: " + event.getEventName());
-        if(event.isCancelled() || !plugin.isLocked()){
+        if(!plugin.isLocked()){
             return;
         }
         event.setCancelled(true);
         plugin.informPlayer(event.getPlayer());
     }
+    @EventHandler(ignoreCancelled = true)
     public void onPaintingBreak(PaintingBreakEvent event){
         plugin.log("EVENT: " + event.getEventName());
-        if(event.isCancelled() || !plugin.isLocked()){
+        if(!plugin.isLocked()){
             return;
         }
         event.setCancelled(true);
@@ -79,19 +85,12 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
         }
     }
 
-    public void onEndermanPickup(EndermanPickupEvent event){
+    @EventHandler(ignoreCancelled = true)
+    public void onEndermanPickup(EntityChangeBlockEvent event){
         plugin.log("EVENT: " + event.getEventName());
-        if(event.isCancelled() || !plugin.isLocked()){
+        if(!plugin.isLocked()){
             return;
         }
         event.setCancelled(true);
     }
-    public void onEndermanPlace(EndermanPlaceEvent event){
-        plugin.log("EVENT: " + event.getEventName());
-        if(event.isCancelled() || !plugin.isLocked()){
-            return;
-        }
-        event.setCancelled(true);
-    }
-
 }
